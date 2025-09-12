@@ -1,0 +1,15 @@
+[package]
+
+name = "app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+anyhow = { workspace = true}
+log = { workspace = true}
+env_logger = { workspace = true}
+pollster = { workspace = true }
+winit = { version = "0.30", features = ["android-native-activity"] }
+
+renderer = { path = "../renderer" }

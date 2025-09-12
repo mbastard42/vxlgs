@@ -1,0 +1,12 @@
+[package]
+name = "renderer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true}
+log = { workspace = true}
+env_logger = { workspace = true}
+pollster = { workspace = true }
+
+wgpu = "26.0.1"

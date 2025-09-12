@@ -1,0 +1,9 @@
+[package]
+name = "engine"
+version = "0.1.2"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true}
+log = { workspace = true}
+env_logger = { workspace = true}

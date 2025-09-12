@@ -1,12 +1,13 @@
-[package]
-name = "vxlgs"
+[workspace]
+resolver = "2"
+members = [ "crates/app", "crates/engine", "crates/math", "crates/renderer", "crates/shaders", "crates/voxel" ]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[workspace.dependencies]
 anyhow = "1.0"
 log = "0.4"
 env_logger = "0.10"
-winit = { version = "0.30", features = ["android-native-activity"] }
-wgpu = "26.0.1"
 pollster = "0.4.0"
