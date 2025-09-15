@@ -6,26 +6,25 @@ use crate::{
 use std::marker::PhantomData;
 use wgpu::rwh::{ HasWindowHandle, HasDisplayHandle };
 
-pub struct SurfaceCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> {
+pub struct SurfaceCtx<W: HasWindowHandle + HasDisplayHandle + Sync + Send + 'static> {
     pub surface: wgpu::Surface<'static>,
-    pub config: wgpu::SurfaceConfiguration,
-    pub is_configured: bool,
+    pub config: Option<wgpu::SurfaceConfiguration>,
     _marker: PhantomData<W>,
 }
 
-impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> SurfaceCtx<W> {
+impl<W: HasWindowHandle + HasDisplayHandle + Sync + Send + 'static> SurfaceCtx<W> {
     pub fn new(window_ctx: &WindowCtx<W>, gpu: &GpuCtx<W>) -> anyhow::Result<Self> {
         let surface: wgpu::Surface<'_> = gpu.instance.create_surface(window_ctx.window().clone())?;
-        let caps: wgpu::SurfaceCapabilities = surface.get_capabilities(&gpu.adapter);
+        let caps = surface.get_capabilities(&gpu.adapter);
 
-        let format: wgpu::TextureFormat = caps
+        let format = caps
             .formats
             .iter()
             .copied()
-            .find(|f: &wgpu::TextureFormat| f.is_srgb())
+            .find(|f| f.is_srgb())
             .unwrap_or(caps.formats[0]);
 
-        let config: wgpu::wgt::SurfaceConfiguration<Vec<wgpu::TextureFormat>> = wgpu::SurfaceConfiguration {
+        let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format,
             width: window_ctx.size().0,
@@ -37,20 +36,28 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
         };
 
         surface.configure(&gpu.device, &config);
-        let is_configured = true;
 
-        Ok(Self { surface, config, is_configured, _marker: PhantomData })
+        Ok(Self { 
+            surface, 
+            config: Some(config), 
+            _marker: PhantomData 
+        })
     }
 
     pub fn resize(&mut self, gpu: &GpuCtx<W>, width: u32, height: u32) {
         if width == 0 || height == 0 {
-            self.is_configured = false;
+            self.config = None;
             return;
         }
-        self.config.width = width;
-        self.config.height = height;
-        self.surface.configure(&gpu.device, &self.config);
-        self.is_configured = true;
-        
+
+        if let Some(ref mut config) = self.config {
+            config.width = width;
+            config.height = height;
+            self.surface.configure(&gpu.device, config);
+        }
+    }
+
+    pub fn is_configured(&self) -> bool {
+        self.config.is_some()
     }
 }

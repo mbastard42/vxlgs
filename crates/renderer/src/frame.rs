@@ -1,11 +1,7 @@
-use crate::{
-    GpuCtx,
-    PipelineCtx,
-    SurfaceCtx,
-};
-
 use std::marker::PhantomData;
 use wgpu::rwh::{ HasWindowHandle, HasDisplayHandle };
+
+use crate::{ WindowCtx, GpuCtx, PipelineCtx, SurfaceCtx };
 
 pub struct FrameCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> {
     _marker: PhantomData<W>,
@@ -13,7 +9,7 @@ pub struct FrameCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + 
 
 impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> FrameCtx<W> {
     pub fn draw(gpu: &GpuCtx<W>, surface: &mut SurfaceCtx<W>, pipe: &PipelineCtx<W>) -> Result<(), wgpu::SurfaceError> {
-        if !surface.is_configured {
+        if !surface.is_configured() {
             return Ok(());
         }
 
@@ -49,10 +45,12 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
         Ok(())
     }
 
-    pub fn redraw(gpu_ctx: &GpuCtx<W>, surface_ctx: &mut SurfaceCtx<W>, pipeline_ctx: &PipelineCtx<W>, width: u32, height: u32) {
+    pub fn redraw(window_ctx: &WindowCtx<W>, gpu_ctx: &GpuCtx<W>, surface_ctx: &mut SurfaceCtx<W>, pipeline_ctx: &PipelineCtx<W>) {
         if let Err(e) = FrameCtx::draw(gpu_ctx, surface_ctx, pipeline_ctx) {
             match e {
                 wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated => {
+                    let width: u32 = window_ctx.size().0;
+                    let height: u32 = window_ctx.size().1;
                     surface_ctx.resize(gpu_ctx, width, height);
                 }
                 other => log::error!("render error: {other}"),

@@ -39,7 +39,7 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
                 module: &shader,
                 entry_point: Some("fs_main"),
                 targets: &[Some(wgpu::ColorTargetState {
-                    format: surface.config.format,
+                    format: surface.config.as_ref().unwrap().format,
                     blend: Some(wgpu::BlendState::REPLACE),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],

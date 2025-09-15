@@ -1,13 +1,15 @@
 use std::sync::Arc;
 use wgpu::rwh::{ HasWindowHandle, HasDisplayHandle };
 
-pub struct WindowCtx<W: HasWindowHandle + HasDisplayHandle> {
+use crate::{ SurfaceCtx, GpuCtx };
+
+pub struct WindowCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> {
     window: Arc<W>,
     width: u32,
     height: u32,
 }
 
-impl<W: HasWindowHandle + HasDisplayHandle> WindowCtx<W> {
+impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> WindowCtx<W> {
     pub fn new(window: Arc<W>, width: u32, height: u32) -> Self {
         Self { window, width, height }
     }
@@ -20,8 +22,9 @@ impl<W: HasWindowHandle + HasDisplayHandle> WindowCtx<W> {
         (self.width, self.height)
     }
 
-    pub fn resize(&mut self, width: u32, height: u32) {
+    pub fn resize(&mut self, gpu_ctx: &GpuCtx<W>, surface_ctx: &mut SurfaceCtx<W>, width: u32, height: u32) {
         self.width = width;
         self.height = height;
+        surface_ctx.resize(&gpu_ctx, width, height);
     }
 }

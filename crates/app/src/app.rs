@@ -7,9 +7,9 @@ type Window = winit::window::Window;
 struct App {
     window_ctx: Option<WindowCtx<Window>>,
     gpu_ctx: Option<GpuCtx<Window>>,
-    surface_ctx:  Option<SurfaceCtx<Window>>,
-    resource_ctx:   Option<ResourceCtx<Window>>,
-    pipeline_ctx:  Option<PipelineCtx<Window>>,
+    surface_ctx: Option<SurfaceCtx<Window>>,
+    resource_ctx: Option<ResourceCtx<Window>>,
+    pipeline_ctx: Option<PipelineCtx<Window>>,
 }
 
 impl App {
@@ -58,12 +58,9 @@ impl ApplicationHandler<()> for App {
 
         match event {
             WindowEvent::CloseRequested => el.exit(),
-            WindowEvent::Resized(size) => {
-                window_ctx.resize(size.width, size.height);
-                surface_ctx.resize(gpu_ctx, size.width, size.height);
-            }
+            WindowEvent::Resized(size) => window_ctx.resize(gpu_ctx, surface_ctx, size.width, size.height),
             WindowEvent::RedrawRequested => {
-                FrameCtx::redraw(gpu_ctx, surface_ctx, pipeline_ctx, window_ctx.window().inner_size().width, window_ctx.window().inner_size().height);
+                FrameCtx::redraw(window_ctx, gpu_ctx, surface_ctx, pipeline_ctx);
                 window_ctx.window().request_redraw();
             }
             _ => {}
@@ -71,7 +68,6 @@ impl ApplicationHandler<()> for App {
     }
 }
 
-// Point d’entrée
 pub fn run() -> anyhow::Result<()> {
     
     let event_loop: EventLoop<()> = EventLoop::with_user_event().build()?;
