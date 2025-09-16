@@ -2,86 +2,56 @@
 
 A voxel-based **Rust** game engine experimenting with **realistic physics** and **ray-marching rendering** to explore modern GPU techniques and **modular** engine design.
 
-## Goals
+## Applications
 
-- Realistic voxel **physics simulation**  
-- **Ray-marching** based renderer
-- **Procedural animation** & world generation  
-- Modular **Rust workspace** for clean architecture and testing  
-
-## Demo
-
-Comming soon
-
-## Installation
+The project provides four main programs:
 
 ```bash
-git clone https://github.com/username/vxlgs.git
-cd vxlgs
-cargo run
+apps
+├── client      # Game client for interacting with the voxel world
+├── launcher    # Entry point for managing builds, updates, and startup
+├── server      # Dedicated server handling simulation and multiplayer state
+└── studio      # Editor for voxel assets, world building, and testing
 ```
 
-## Dependencies
+## Libraries
 
-- [log](https://crates.io/crates/log) + [env_logger](https://crates.io/crates/env_logger) → logging
-- [wgpu](https://crates.io/crates/wgpu) → modern GPU abstraction
-- [winit](https://crates.io/crates/winit) → windowing & input handling
-
-<details>
+These applications rely on multiple shared libraries, organized by domain:
 
 ```bash
-vxlgs % cargo tree --depth 1 --prune renderer --prune voxel --prune shaders --prune engine --prune math 
-app v0.1.0 (vxlgs/crates/app)
-├── anyhow v1.0.99
-├── env_logger v0.10.2
-├── log v0.4.27
-├── pollster v0.4.0
-└── winit v0.30.12
-    [build-dependencies]
-
-engine v0.1.0 (vxlgs/crates/engine)
-├── anyhow v1.0.99
-└── log v0.4.27
-
-math v0.1.0 (vxlgs/crates/math)
-├── anyhow v1.0.99
-└── log v0.4.27
-
-renderer v0.1.0 (vxlgs/crates/renderer)
-├── anyhow v1.0.99
-├── log v0.4.27
-├── pollster v0.4.0
-└── wgpu v26.0.1
-    [build-dependencies]
-
-shaders v0.1.0 (vxlgs/crates/shaders)
-├── anyhow v1.0.99
-└── log v0.4.27
-
-voxel v0.1.0 (vxlgs/crates/voxel)
-├── anyhow v1.0.99
-└── log v0.4.27
-```
-</details>
-
-## Project architecture and documentation
-
-```bash
-vxlgs % tree -d -L 2
-.
-├── assets
-│   ├── images
-│   └── textures
-└── crates
-    ├── app
-    ├── engine
-    ├── math
-    ├── renderer
-    ├── shaders
-    └── voxel
+libs
+├── engine
+│   ├── behaviors   # AI, entity logic, and procedural behaviors
+│   ├── math        # Math primitives and utilities
+│   └── physics     # Physics engine
+│
+├── graphics
+│   ├── frontend    # Windowing, input handling, and high-level graphics API
+│   ├── renderer    # Core renderer with ray-marching and GPU pipelines
+│   └── shaders     # WGSL/GLSL shader modules for the renderer
+│
+├── infra
+│   ├── core        # Core utilities, common traits, and runtime helpers
+│   ├── logging     # Structured logging and diagnostics
+│   ├── net         # Networking layer (client-server communication)
+│   ├── persistence # Save/load systems, serialization, and data storage
+│   └── protocol    # Communication protocols and message formats
+│
+├── prelude
+│   └── src         # Commonly re-exported types and traits for ergonomic imports
+│
+└── voxel
+    ├── growth      # Procedural systems for vegetation and voxel growth
+    ├── structure   # World structures
+    └── terrain     # Terrain generation and manipulation algorithms
 ```
 
-Each crate is self-contained and documented.
+## Documentation
+
+The documentation begins [[here]](doc/0.0.index.md) and covers the architectural design, optimization processes, and development guidelines.
+
+Although the code is self-documented, you can also generate the developer documentation locally with:
+
 ```bash
-cargo doc --open
+cargo doc --open --no-deps --document-private-items 
 ```
