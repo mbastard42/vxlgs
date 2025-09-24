@@ -1,3 +1,5 @@
+use prelude::*;
+
 use crate::WindowCtx;
 
 use std::marker::PhantomData;
@@ -12,13 +14,13 @@ pub struct GpuCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + st
 }
 
 impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send> GpuCtx<W> {
-    pub async fn new(window_ctx: &WindowCtx<W>) -> anyhow::Result<Self> {
+    pub async fn new(window_ctx: &WindowCtx<W>) -> Result<Self> {
         let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::PRIMARY,
             ..Default::default()
         });
 
-        let tmp_surface: wgpu::Surface<'_> = instance.create_surface(window_ctx.window().clone())?;
+        let tmp_surface: wgpu::Surface<'_> = instance.create_surface(window_ctx.window().clone()).corerr()?;
 
         let adapter: wgpu::Adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -26,7 +28,7 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
                 compatible_surface: Some(&tmp_surface),
                 force_fallback_adapter: false,
             })
-            .await?;
+            .await.corerr()?;
 
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
@@ -39,7 +41,7 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
                 },
                 memory_hints: Default::default(),
                 trace: wgpu::Trace::Off,
-            }).await?;
+            }).await.corerr()?;
 
         Ok(Self { instance, adapter, device, queue, _marker: PhantomData })
     }

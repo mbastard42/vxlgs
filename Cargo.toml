@@ -1,13 +1,46 @@
-[workspace]
-resolver = "2"
-members = [ "crates/app", "crates/engine", "crates/math", "crates/renderer", "crates/shaders", "crates/voxel" ]
-
 [workspace.package]
-version = "0.1.0"
+
 edition = "2021"
+version = "0.1.0"
+
+[workspace]
+
+resolver = "2"
+members = [
+
+  "apps/client",
+  "apps/server",
+#   "apps/launcher",
+  "apps/studio",
+
+  "libs/engine/math",
+  "libs/engine/physics",
+
+  "libs/graphics/frontend",
+  "libs/graphics/renderer",
+  "libs/graphics/shaders",
+
+  "libs/infra/core",
+  "libs/infra/logging",
+  "libs/infra/network",
+  "libs/infra/persistence",
+  "libs/infra/protocol",
+
+  "libs/prelude",
+  
+  "libs/voxel/growth",
+  "libs/voxel/structure",
+  "libs/voxel/terrain",
+]
 
 [workspace.dependencies]
-anyhow = "1.0"
-log = "0.4"
-env_logger = "0.10"
+
+# infra
+# anyhow = "1.0"
+# log = "0.4"
+# env_logger = "0.10"
+tracing = "0.1.41"
+# graphics
+wgpu = "26.0.1"
 pollster = "0.4.0"
+winit = { version = "0.30", features = ["android-native-activity"] }

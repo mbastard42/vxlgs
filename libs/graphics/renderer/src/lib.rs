@@ -1,6 +1,3 @@
-//! This crate is responsible of the GPU 
-
-
 mod window;
 pub use window::WindowCtx;
 

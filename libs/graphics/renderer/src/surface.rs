@@ -1,3 +1,5 @@
+use prelude::*;
+
 use crate::{
     WindowCtx,
     GpuCtx,
@@ -13,8 +15,8 @@ pub struct SurfaceCtx<W: HasWindowHandle + HasDisplayHandle + Sync + Send + 'sta
 }
 
 impl<W: HasWindowHandle + HasDisplayHandle + Sync + Send + 'static> SurfaceCtx<W> {
-    pub fn new(window_ctx: &WindowCtx<W>, gpu: &GpuCtx<W>) -> anyhow::Result<Self> {
-        let surface: wgpu::Surface<'_> = gpu.instance.create_surface(window_ctx.window().clone())?;
+    pub fn new(window_ctx: &WindowCtx<W>, gpu: &GpuCtx<W>) -> Result<Self> {
+        let surface: wgpu::Surface<'_> = gpu.instance.create_surface(window_ctx.window().clone()).corerr()?;
         let caps = surface.get_capabilities(&gpu.adapter);
 
         let format = caps

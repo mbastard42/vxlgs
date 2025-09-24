@@ -1,3 +1,5 @@
+use prelude::*;
+
 use std::marker::PhantomData;
 use wgpu::rwh::{ HasWindowHandle, HasDisplayHandle };
 
@@ -8,12 +10,12 @@ pub struct FrameCtx<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + 
 }
 
 impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Send + 'static> FrameCtx<W> {
-    pub fn draw(gpu: &GpuCtx<W>, surface: &mut SurfaceCtx<W>, pipe: &PipelineCtx<W>) -> Result<(), wgpu::SurfaceError> {
+    pub fn draw(gpu: &GpuCtx<W>, surface: &mut SurfaceCtx<W>, pipe: &PipelineCtx<W>) -> Result<()> {
         if !surface.is_configured() {
             return Ok(());
         }
 
-        let output: wgpu::SurfaceTexture = surface.surface.get_current_texture()?;
+        let output: wgpu::SurfaceTexture = surface.surface.get_current_texture().corerr()?;
         let view: wgpu::TextureView = output.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         let mut encoder: wgpu::CommandEncoder = gpu.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -48,7 +50,7 @@ impl<W: HasWindowHandle + HasDisplayHandle + std::marker::Sync + std::marker::Se
     pub fn redraw(window_ctx: &WindowCtx<W>, gpu_ctx: &GpuCtx<W>, surface_ctx: &mut SurfaceCtx<W>, pipeline_ctx: &PipelineCtx<W>) {
         if let Err(e) = FrameCtx::draw(gpu_ctx, surface_ctx, pipeline_ctx) {
             match e {
-                wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated => {
+                Error::External(wgpu::SurfaceError::Lost) | wgpu::SurfaceError::Outdated => {
                     let width: u32 = window_ctx.size().0;
                     let height: u32 = window_ctx.size().1;
                     surface_ctx.resize(gpu_ctx, width, height);
